@@ -4,31 +4,31 @@ import errorHandler from "../utils/errorHandler.js"
 import sendToken from "../utils/sendToken.js";
 export const register = catchAsycnError(async(req,res)=>{
     const {name, email, password} = req.body;
-    const user = await User.findOne({email});
-    if (user) {
+    const existingUser = await User.findOne({email});
+    if (existingUser) {
       return  res.status(200).json({message : "User already exist"})
     }
     if (password.length < 6) {
       return  res.status(400).json({message : "Password must be at least 6 character"})
     }
 
-    const newUser = new User({
+    const user = new User({
         name,
         email,
         password
     })
-    if (newUser) {
-    const token =  sendToken(newUser, 201, res)
-        newUser.save()
+    if (user) {
+    const token =  sendToken(user, 201, res)
+        user.save()
         res.status(200).json({
-           _id : newUser._id,
-           name : newUser.name,
-           email : newUser.email,
-           password : newUser.password,
-           avatar : newUser.avatar,
-           role : newUser.role,
-           resetPasswordToken : newUser.resetPasswordToken,
-           resetPasswordExpire : newUser.resetPasswordExpire,
+           _id : user._id,
+           name : user.name,
+           email : user.email,
+           password :user.password,
+           avatar : user.avatar,
+           role : user.role,
+           resetPasswordToken : user.resetPasswordToken,
+           resetPasswordExpire : user.resetPasswordExpire,
            token
         })
     }else{
