@@ -2,9 +2,9 @@ import catchAsycnError from "./catchAsycnError.js";
 import ErrorHandler from "../utils/errorHandler.js";
 import User from "../models/userModel.js";
 import jwt from "jsonwebtoken"
-const isAuthenticated = catchAsycnError(async(req,res,next)=>{
+ export const isAuthenticated = catchAsycnError(async(req,res,next)=>{
     const {token} = req.cookies;
-     console.log(token);
+    //  console.log(token);
     if (!token) {
         return next(new ErrorHandler("invalid token", 401))
     }
@@ -12,4 +12,16 @@ const isAuthenticated = catchAsycnError(async(req,res,next)=>{
     req.user = await User.findById(decoded.id)
     next()
 })
-export default isAuthenticated
+
+//authorizeRole
+
+export const authorizeRoles = (...roles)=>{
+    return (req, res, next)=>{
+        if (!roles.includes(req.user.role)) {
+            return next(
+                new ErrorHandler(`Role(${req.user.role}) is not allow to acess this resource`)
+            )
+        }
+        next()
+    }
+}

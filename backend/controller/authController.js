@@ -54,3 +54,14 @@ export const login = catchAsycnError(async(req, res, next)=>{
   }
   sendToken(user, 201, res)
 })
+
+//logout
+export const logout = catchAsycnError(async(req, res, next)=>{
+  res.cookie("token", null, {
+    expires : new Date(Date.now()),
+    httpOnly : true
+  })
+  res.status(200).json({
+    message : "Logged out"
+  })
+})
