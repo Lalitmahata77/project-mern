@@ -145,3 +145,47 @@ res.status(200).json({
 })
 
 })
+//upadte userProfile --> api/v1/me/upadte
+export const updateProfile = catchAsycnError(async(req,res,next)=>{
+  const newUserData = {
+    name : req.body.name,
+    email : req.body.email
+  }
+  const user = await User.findByIdAndUpdate(req.user._id, newUserData, {new : true})
+  res.status(200).json({user})
+})
+
+//get all users -->/api/v1/admin/users
+export const getAllUsers =catchAsycnError(async(req,res,next)=>{
+  const users = await User.find()
+  res.status(200).json({users})
+})
+
+//get user details-->admin
+ export const getUserDetails = catchAsycnError(async(req,res,next)=>{
+  const user = await User.findById(req.params.id)
+  if (!user) {
+    next(new ErrorHandler(`User not found with that id : ${req.params.id}`))
+  }
+  res.status(200).json({user})
+ })
+
+ //update user-->api/v1/admin/update/:id
+ export const updateUser = catchAsycnError(async(req,res,next)=>{
+  const newUserData = {
+    name : req.body.name,
+    email : req.body.email,
+    role : req.body.role
+  }
+  const user = await User.findByIdAndUpdate(req.params.id, newUserData, {new : true})
+  res.status(200).json(user)
+ })
+//delete user --> admin
+ export const deleteUser = catchAsycnError(async(req,res,next)=>{
+  const user = await User.findById(req.params.id)
+  if (!user) {
+    next(new ErrorHandler(`User not found with that id : ${req.params.id}`))
+  }
+await user.deleteOne()
+  res.status(200).json({success : true})
+ })
