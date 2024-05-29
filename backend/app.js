@@ -18,9 +18,10 @@ app.use(express.json())
 //import routes
 import productRoute from "./route/productRoute.js"
 import authRoute from "./route/authRoute.js"
+import orderRoute from "./route/orderRoute.js"
 app.use("/api/v1/", productRoute)
 app.use("/api/v1",authRoute)
-
+app.use("/api/v1/",orderRoute)
 app.use(errorMiddleware)
 const server = app.listen(PORT, ()=>{
    connectDatabase()

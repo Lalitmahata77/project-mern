@@ -60,3 +60,67 @@ export const deleteProduct = catchAsycnError(async(req,res)=>{
     await product.deleteOne();
     res.status(200).json({message : "Product deleted successfully"})
 })
+
+//create / upadte reviews -->/api/v1/reviews
+
+export const createProductReview = catchAsycnError(async(req, res)=>{
+    const {rating, comment, productId} = req.body;
+    const review = {
+        user : req?.user?._id,
+        rating : Number(rating),
+        comment
+    }
+   
+    let product = await Product.findById(productId);
+    if (!product) {
+        return next(new ErrorHandler("product not found"))
+    }
+  const isReviewed = product?.reviews?.find(
+    (r)=> r.user.toString() === req?.user?._id.toString()
+  )
+  if (isReviewed) {
+   product.reviews.forEach((review)=>{
+    if (review.user.toString() === req.user._id.toString()) {
+        review.comment = comment,
+        review.rating = rating
+    }
+   })
+  }else{
+    product.reviews.push(review)
+    product.numOfReviews = product.reviews.length
+  }
+  product.ratings = product.reviews.reduce((acc, item)=>item.rating + acc, 0) /
+  product.reviews.length;
+  await product.save({validateBeforeSave : false})
+    res.status(200).json({
+        success : true
+    })
+})
+//get reviews
+export const getProductReview = catchAsycnError(async(req,res, next)=>{
+    const product = await Product.findById(req.query.id)
+    if (!product) {
+        return next(new ErrorHandler("product not found"))
+    }
+    res.status(200).json({reviews : product.reviews})
+})
+
+//delete product reviews
+export const deleteReview = catchAsycnError(async(req, res, next)=>{
+    let product = await Product.findById(req.query.productId)
+    if (!product) {
+        return next(new ErrorHandler("product not found"))
+    }
+      const reviews = product?.reviews?.filter(
+        (review)=>review._id.toString() !== req?.query?.id.toString()
+    )
+     const numOfReviews =product.reviews.length;
+    const ratings =numOfReviews === 0 ? 0 : product.reviews.reduce((acc, item)=>item.rating+acc,0 )/numOfReviews
+    product = await Product.findByIdAndUpdate(req.query.productId, {reviews, numOfReviews, ratings}, {new : true})
+    await product.save({validateBeforeSave : false})
+
+    res.status(200).json({success : true,
+        product
+    })
+
+})
