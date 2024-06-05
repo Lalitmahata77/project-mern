@@ -7,8 +7,8 @@ export const getProduct = async(req,res)=>{
     const apiFilters = new APIFilter(Product, req.query).search().filters()
     apiFilters.pagination(resPerPage);
     let products = await apiFilters.query;
+   
     const filtersProductCount = Product.length
-    console.log(req.user);
     products = await apiFilters.query.clone();
 
 res.status(200).json({
