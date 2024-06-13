@@ -5,6 +5,8 @@ import sendToken from "../utils/sendToken.js";
 import ErrorHandler from "../utils/errorHandler.js";
 import sendEmail from "../utils/sendEmail.js";
 import { getResetPasswordTemplate } from "../utils/emailTemplate.js";
+import { delete_file, upload_file } from "../utils/cloudnary.js";
+
 export const register = catchAsycnError(async(req,res)=>{
     const {name, email, password} = req.body;
     const existingUser = await User.findOne({email});
@@ -69,6 +71,23 @@ export const logout = catchAsycnError(async(req, res, next)=>{
   })
 })
 
+export const uploadAvatar = catchAsycnError(async(req, res, next)=>{
+ const avatarResponse = await upload_file(req.body.avatar, "shopit/avatars")
+ //Remove previous avatar
+ if(req?.user?.avatar?.url)
+  {
+await delete_file(req?.user?.avatar?.public_id);
+  }
+ const user = await User.findByIdAndUpdate(req?.body?._id, {
+  avatar : avatarResponse
+ })
+ 
+  res.status(200).json({
+    user
+  })
+})
+
+
 //forget password
 export const forgotPassword = catchAsycnError(async(req, res, next)=>{
   const user = await User.findOne({email : req.body.email})
@@ -79,7 +98,7 @@ export const forgotPassword = catchAsycnError(async(req, res, next)=>{
   const resetToken = await user.getResetPasswordToken()
   await user.save()
   //create reset password url
-  const resetUrl = `${process.env.FRONTEND_URL}/api/v1/password/reset/${resetToken}`
+  const resetUrl = `${process.env.FRONTEND_URL}/password/reset/${resetToken}`
 
   const message = getResetPasswordTemplate(user?.name, resetUrl)
   try {
@@ -97,33 +116,34 @@ export const forgotPassword = catchAsycnError(async(req, res, next)=>{
   }
   sendToken(user, 200, res)
 })
-
-export const resetPassword = catchAsycnError(async(req,res,next)=>{
- const resetPasswordToken = crypto
-  .createHash("sha256")
-  .update(req.params.token)
-  .digest("hex");
-
-
+export const resetPassword = catchAsycnError(async(req,res,next) =>
+  {
+    this.resetPasswordToken = crypto.createHash('sha256').update(req.params.token).digest("hex");
+  
+  
   const user = await User.findOne({
+  
     resetPasswordToken,
-    resetPasswordExpire : {$gt: Date.now()}
+    resetPasswordExpire:{$gt:Date.now()}
   })
-  if (!user) {
-    return next(new ErrorHandler("Password reset token is invalid or has been expire", 400))
-  }
-  if (req.body.password !== req.body.confirmPassword) {
-    return next(new ErrorHandler("Password does not match", 400))
-  }
-  //set new password
-  user.password =req.body.password;
-  user.resetPasswordToken = undefined
-  user.resetPasswordExpire = undefined
+  
+  if(!user)
+     {
+      return next(new ErrorHandler('Password reset token is invalid or has been expired',400))
+     }
+  
+     if(req.body.password !== req.body.confirmPassword){
+     return next(new ErrorHandler('Password does not match',400))
+     }
+  user.password = req.body.password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
   await user.save()
-
-  sendToken(user, 200, res)
-
-})
+  
+  sendToken(user,200,res);
+  
+   });
+  
 //get user profile
 export const getUserProfile =catchAsycnError( async(req, res, next) =>{
   const user = await User.findById(req?.user?._id).select("-resetPasswordToken -resetPasswordExpire")

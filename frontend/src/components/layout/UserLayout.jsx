@@ -5,7 +5,7 @@ const UserLayout = ({ children }) => {
   return (
     <div>
       <div className="mt-2 mb-4 py-4">
-        <h2 className="text-center font-bold">User Settings</h2>
+        <h2 className="text-center font-bold text-4xl">User Settings</h2>
       </div>
 
       <div className="container">
