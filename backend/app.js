@@ -1,6 +1,7 @@
 import cookieParser from "cookie-parser"
 import express from "express"
 import dotenv from "dotenv"
+import bodyParser from "body-parser"
 const app = express()
 import {connectDatabase} from "./config/dbConnect.js"
 import errorMiddleware from "./middleware/error.js"
@@ -14,14 +15,22 @@ process.on("uncaughtException", (err)=>{
 dotenv.config({path : "backend/config/config.env"})
 const PORT = process.env.PORT || 3000
 app.use(cookieParser())
-app.use(express.json({limit : "10mb"}))
+app.use('/webhook/stripe', bodyParser.raw({ type: 'application/json' }));
+app.use(express.json({limit:"10mb",
+    verify:(req,res,buf)=>{
+        req.rawBody = buf.toString();
+    }
+    })); 
+
 //import routes
 import productRoute from "./route/productRoute.js"
 import authRoute from "./route/authRoute.js"
 import orderRoute from "./route/orderRoute.js"
+import paymentRoute from "./route/paymentRoute.js"
 app.use("/api/v1/", productRoute)
 app.use("/api/v1",authRoute)
 app.use("/api/v1/",orderRoute)
+app.use("/api/v1", paymentRoute)
 app.use(errorMiddleware)
 const server = app.listen(PORT, ()=>{
    connectDatabase()

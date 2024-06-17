@@ -1,20 +1,24 @@
-import { useParams } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import { useGetProductsDetailsQuery } from "../../redux/api/productApi"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import Loader from "../layout/Loader"
 import StarRatings from "react-star-ratings"
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { setCartItems } from "../../redux/features/cartSlice"
+import NewReviews from "../reviews/NewReviews"
+import ListReview from "../reviews/ListReview"
 
 
 const ProductDetails = () => {
+  const {isAthenticated} = useSelector((state)=> state.auth)
   const [quantity, setQuantity] = useState(1)
 const params = useParams()
 const dispatch = useDispatch()
    const {data, error, isError,isLoading} = useGetProductsDetailsQuery(params?.id)
    const product = data?.product
    const [activeImg, setActiveImg] = useState(" ")
+  
    useEffect(()=>{
 setActiveImg(product?.images[0] ? product?.images[0]?.url : "/images/default_product.png")
    },[product])
@@ -53,6 +57,7 @@ useEffect(()=>{
   if(isLoading) return <Loader/>
 
   return (
+    <>
     <div className="  font-sans tracking-wide max-md:mx-auto">
       <div className="bg-gradient-to-r   md:min-h-[600px] grid items-start grid-cols-1 lg:grid-cols-5 md:grid-cols-2 gap-8">
 
@@ -99,25 +104,7 @@ useEffect(()=>{
  <div className="mt-8">
             <h3 className="text-lg font-bold text-gray-800">Quantity</h3>
              <div className="flex divide-x border w-max mt-4 rounded overflow-hidden">
-            {/*  <button type="button" onClick={increageQnt} className="bg-gray-100 w-10 h-9 font-semibold flex items-center justify-center count" >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-3 fill-current inline" viewBox="0 0 124 124">
-                  <path d="M112 50H12C5.4 50 0 55.4 0 62s5.4 12 12 12h100c6.6 0 12-5.4 12-12s-5.4-12-12-12z" data-original="#000000"></path>
-                </svg>
-              </button>
-             <button type="number" className="count bg-transparent w-10 h-9 font-semibold flex items-center justify-center text-gray-800 text-lg" value={quantity}></button>
-              
-                  {/* <input
-              type="number"
-              className="form-control count d-inline"
-              value={quantity}
-             
-            /> 
-              <button type="button" onClick={decreaseQnt} className="bg-gray-800 text-white w-10 h-9 font-semibold flex items-center justify-center count" >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-3 fill-current inline" viewBox="0 0 42 42">
-                  <path d="M37.059 16H26V4.941C26 2.224 23.718 0 21 0s-5 2.224-5 4.941V16H4.941C2.224 16 0 18.282 0 21s2.224 5 4.941 5H16v11.059C16 39.776 18.282 42 21 42s5-2.224 5-4.941V26h11.059C39.776 26 42 23.718 42 21s-2.224-5-4.941-5z" data-original="#000000"></path>
-                </svg>
-              </button> */}
-             
+            
              
              <span className="btn bg-red-600 minus  " onClick={decreaseQnt}>
               -
@@ -135,20 +122,7 @@ useEffect(()=>{
             </div>  
 
          
-           {/*   <div className="stockCounter d-inline">
-            <span className="btn btn-danger minus" onClick={decreseQty}>
-              -
-            </span>
-            <input
-              type="number"
-              className="form-control count d-inline"
-              value={quantity}
-              readonly
-            />
-            <span className="btn btn-primary plus" onClick={increseQty}>
-              +
-            </span>
-          </div> */}
+        
            <div className=" mt-7 font-bold">
             Status : {" "}
             <span className={product?.stock > 0 ? " text-green-400  rounded" : "text-red-400 rounded"}>{product?.stock > 0 ? "In Stock" : "Out of Stock"}</span>
@@ -167,21 +141,23 @@ useEffect(()=>{
             <button type="button" className="min-w-[200px] px-4 py-3 bg-gray-800 hover:bg-gray-900 text-white text-sm font-semibold rounded">Buy now</button>
             <button type="button" className="min-w-[200px] px-4 py-2.5 border border-gray-800 bg-transparent hover:bg-gray-50 text-gray-800 text-sm font-semibold rounded" disabled={product.stock <= 0} onClick={setItemToCart}>Add to cart</button>
           </div>
-          
+        
+      
           
       </div>
+      <div  > <NewReviews/></div>
+     
+       
     </div>
 
-          {/* <div className="flex flex-wrap gap-4 mt-8">
-            <button type="button" className="min-w-[200px] px-4 py-3 bg-gray-800 hover:bg-gray-900 text-white text-sm font-semibold rounded">Buy now</button>
-            <button type="button" className="min-w-[200px] px-4 py-2.5 border border-gray-800 bg-transparent hover:bg-gray-50 text-gray-800 text-sm font-semibold rounded">Add to cart</button>
-          </div> */}
-
         </div>
+       
         </div>
-
      
-    
+{
+  product?.reviews?.length > 0 && <ListReview reviews={product?.reviews}/>
+}
+        </>
    
   )
 }

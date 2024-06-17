@@ -2,6 +2,7 @@ import Product from "../models/productModel.js"
 import ErrorHandler from "../utils/errorHandler.js";
 import catchAsycnError from "../middleware/catchAsycnError.js";
 import APIFilter from "../utils/apiFilters.js";
+import Order from "../models/orderModel.js";
 export const getProduct = async(req,res)=>{
     const resPerPage = 4;
     const apiFilters = new APIFilter(Product, req.query).search().filters()
@@ -30,7 +31,7 @@ export const newProduct =catchAsycnError(async(req,res)=>{
 //getProduct details --> /api/v1/products/:id
 export const getProductDetails = catchAsycnError(async(req, res, next)=>{
     const {id} = req?.params;
-    const product = await Product.findById(id);
+    const product = await Product.findById(id).populate("reviews.user")
     if (!product) {
       return next(new ErrorHandler("product not found"))
     }
@@ -123,4 +124,17 @@ export const deleteReview = catchAsycnError(async(req, res, next)=>{
         product
     })
 
+})
+
+export const canUserReview = catchAsycnError(async(req, res)=>{
+    const orders = await Order.find({
+        user: req.user._id,
+        "orderItem.product" : req.query.productId
+    })
+    if (orders.length === 0) {
+        return res.status(200).json({canReview : false})
+    }
+    res.status(200).json({
+        canReview : true
+    })
 })

@@ -5,7 +5,7 @@ const router = express.Router()
 
 router.route("/order/new").post(isAuthenticated, newOrder)
 router.route("/order/:id").get(isAuthenticated,orderDetails)
-router.route("/me/order").get(isAuthenticated,myorders)
+router.route("/me/orders").get(isAuthenticated,myorders)
 router.route("/admin/orders").get(isAuthenticated,authorizeRoles("admin"), getAllOrder)
 router.route("/admin/orders/:id")
 .put(isAuthenticated,authorizeRoles("admin"), updateOrder)

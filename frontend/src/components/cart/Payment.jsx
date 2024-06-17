@@ -12,13 +12,15 @@ const Payment = () => {
     const [createNewOrder, {error, isSuccess}] = useCreateNewOrderMutation()
     const { itemsPrice, shippingPrice, taxPrice, totalPrice } =
     caluclateOrderCost(cartItems);
-    const [stripeCheckoutSession, {data : checkoutData, error : checkoutError}] = useStripeCheckoutSessionMutation()
+    const [stripeCheckoutSession, {data:checkoutData, error : checkoutError}] = useStripeCheckoutSessionMutation()
 const navigate = useNavigate()
+
 useEffect(()=>{
   if (checkoutData) {
     window.location.href = checkoutData?.url
   }
- console.log(checkoutData);
+  console.log(checkoutData);
+
   if (checkoutError) {
     toast.error(error?.data?.message)
   }
@@ -28,7 +30,7 @@ useEffect(()=>{
     toast.error(error?.data?.message)
   }
   if (isSuccess) {
-    navigate("/")
+    navigate("/me/orders?order_success=true")
 
   }
 },[error,isSuccess])

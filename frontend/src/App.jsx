@@ -18,6 +18,9 @@ import Cart from "./components/cart/Cart"
 import Shipping from "./components/cart/Shipping"
 import ConfirmOrder from "./components/cart/ConfirmOrder"
 import Payment from "./components/cart/Payment"
+import MyOrder from "./components/order/MyOrder"
+import OrderDetails from "./components/order/OrderDetails"
+import Invoice from "./components/invoice/Invoice"
 function App() {
  
 
@@ -52,6 +55,9 @@ function App() {
      <Route path="/shipping" element={<ProtectedRoute><Shipping/></ProtectedRoute>}/>
      <Route path="/confirm_order" element={<ProtectedRoute><ConfirmOrder/></ProtectedRoute>}/>
      <Route path="/payment_method" element={<ProtectedRoute><Payment/></ProtectedRoute>}/>
+     <Route path="/me/orders" element={<ProtectedRoute><MyOrder/></ProtectedRoute>}/>
+     <Route path="/me/orders/:id" element={<ProtectedRoute><OrderDetails/></ProtectedRoute>}/>
+     <Route path="/invoice/orders/:id" element={<ProtectedRoute><Invoice/></ProtectedRoute>}/>
      </Routes>
      <Footer/>
    </BrowserRouter>
